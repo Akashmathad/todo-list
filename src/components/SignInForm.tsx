@@ -1,27 +1,31 @@
 'use client';
-import { FC } from 'react';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import {
-  SignInFormTypes,
-  signInFormSchema,
-} from '@/types/validators/signInValidotors';
 import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import {
+  SignInFormTypes,
+  signInFormSchema,
+} from '@/types/validators/signInValidotors';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { signIn } from 'next-auth/react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { FC, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from './ui/use-toast';
 
 interface SignInFormProps {}
 
 const SignInForm: FC<SignInFormProps> = ({}) => {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
   const form = useForm<SignInFormTypes>({
     resolver: zodResolver(signInFormSchema),
     defaultValues: {
@@ -29,8 +33,24 @@ const SignInForm: FC<SignInFormProps> = ({}) => {
     },
   });
 
-  function onSubmit(values: SignInFormTypes) {
-    console.log(values);
+  async function onSubmit(values: SignInFormTypes) {
+    setLoading(true);
+    const signInData = await signIn('credentials', {
+      username: values.username,
+      password: values.password,
+      redirect: false,
+    });
+    if (signInData?.error) {
+      toast({
+        title: 'Failed',
+        description: 'Incorrect username or Password',
+        variant: 'destructive',
+      });
+    } else {
+      router.push('/');
+      router.refresh();
+    }
+    setLoading(false);
   }
 
   return (
@@ -61,7 +81,11 @@ const SignInForm: FC<SignInFormProps> = ({}) => {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your password..." {...field} />
+                    <Input
+                      placeholder="Enter your password..."
+                      type="password"
+                      {...field}
+                    />
                   </FormControl>
 
                   <FormMessage />
@@ -69,7 +93,7 @@ const SignInForm: FC<SignInFormProps> = ({}) => {
               )}
             />
           </div>
-          <Button type="submit" className="w-full mt-4">
+          <Button isLoading={loading} type="submit" className="w-full mt-4">
             Submit
           </Button>
         </form>

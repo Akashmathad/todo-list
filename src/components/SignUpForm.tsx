@@ -1,26 +1,25 @@
 'use client';
-import { FC, useState } from 'react';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import Link from 'next/link';
+import { toast } from '@/components/ui/use-toast';
 import {
   SignUpFormTypes,
   signUpFormSchema,
 } from '@/types/validators/signUpValidators';
-import axios, { AxiosError } from 'axios';
-import { toast } from '@/components/ui/use-toast';
+import { zodResolver } from '@hookform/resolvers/zod';
+import axios from 'axios';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { FC, useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 interface SignInFormProps {}
 
